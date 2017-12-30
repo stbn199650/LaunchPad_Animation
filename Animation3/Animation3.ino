@@ -208,17 +208,13 @@ void animation3(int m) {
   }
 }
 
-void animation4(int m) {
-  
-}
-
 unsigned long timeForCheck = 0;
 byte delayTime = 30; // Time between checks for button presses in milliseconds
 void loop() {
 
   if (millis() > timeForCheck) {  //button has been pressed
     buttonCheck();
-    trellis.writeDisplay();
+    //trellis.writeDisplay();
     timeForCheck = millis() + delayTime;
   }
 }

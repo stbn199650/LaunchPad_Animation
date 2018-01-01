@@ -15,7 +15,6 @@ Adafruit_TrellisSet trellis =  Adafruit_TrellisSet(&matrix0, &matrix1, &matrix2,
 
 int i = 0, j = 0;
 int rightbutton = 0;
-
 void setup() {
 
   pinMode(pinLED, OUTPUT);
@@ -66,23 +65,10 @@ int getButton(int pv) { //Returns the ID of the cooresponding button when given 
   }
 }
 
-int circle[4][26] = {{0, 1, 2, 3, 16, 17, 18, 22, 26, 30, 50, 54, 58, 4, 8, 12, 32, 36, 40, 44, 45, 46, 47, 60, 61, 62},
-  {5, 6, 7, 20, 21, 25, 29, 49, 53, 57, 9, 13, 33, 37, 41, 42, 43, 56, -1, -1, -1, -1, -1, -1, -1, -1},
-  {10, 11, 24, 28, 14, 34, 38, 39, 52, 48, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-  {15, 35, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
+int show[16][4] = {{0, 1, 4, 5}, {1, 2, 5, 6}, {2, 3, 6, 7}, {3, 7, 16, 20}, {4, 5, 8, 9}, {5, 6, 9, 10},
+  {6, 7, 10, 11}, {7, 11, 20, 24}, {8, 9, 12, 13}, {9, 10, 13, 14}, {10, 11, 14, 15}, {11, 24, 15, 28},
+  {12, 13, 32, 33}, {13, 14, 33, 34}, {14, 15, 34, 35}, {15, 28, 35, 48}
 };
-
-int show1[10][8] = {{0, 1, 2, 3, 47, 60, 61, 62}, {1, 2, 3, 16, 46, 47, 60, 61}, {2, 3, 16, 17, 45, 46, 47, 60}, {3, 16, 17, 18, 44, 45, 46, 47},
-  {16, 17, 18, 22, 40, 44, 45, 46}, {17, 18, 22, 26, 36, 40, 44, 45}, {18, 22, 26, 30, 32, 36, 40, 44}, {22, 26, 30, 50, 12, 32, 36, 40},
-  {26, 30, 50, 54, 8, 12, 32, 36}, {30, 50, 54, 58, 4, 8, 12, 32}
-};
-
-int show2[7][6] = {{5, 6, 7, 43, 56, 57}, {6, 7, 20, 42, 43, 56}, {7, 20, 21, 41, 42, 43}, {20, 21, 25, 37, 41, 42},
-  {21, 25, 29, 33, 37, 41}, {25, 29, 49, 13, 33, 37}, {29, 49, 53, 9, 13, 33}
-};
-
-int show3[5][4] = {{10, 11, 39, 52}, {11, 24, 38, 39}, {24, 28, 34, 38}, {28, 48, 14 , 34}, {10, 14, 48, 52}};
-
 int column = 0, m = 0, n = 0;
 void buttonCheck () {           // checks buttons and sends out a MIDI note cooresponding to that button if pressed
 
@@ -112,87 +98,90 @@ void buttonCheck () {           // checks buttons and sends out a MIDI note coor
           trellis.writeDisplay();
         }
 
-        if (rightbutton == 3 && column != 19) {
-          Serial.println("rightbutton is 3 ");
-          for (i = 0; i < 4; i++) 
-            for (j = 0; j < 26; j++) 
-              if (h == circle[i][j]) 
-                m = i;               
-          
-          animation3(m);          
-        } 
-        
+        if (rightbutton == 9 && column != 19) {
+          //Serial.println("rightbutton is 9 ");
+          m = h / 16;   //button is in which matrix
+          n = h % 16;
+          animation5(m, n, h);
+
+        }
+
       }
     }
   }
 }
+int temp[64] = {0};
+void animation5(int m, int n, int h) { 
+ int x;
+ 
+  if (m == 0) {    
+    for (i = 0; i < 16; i++) {
+      if (show[i][0] == n) {
+        for (j = 0; j < 4; j++) {
+          x=show[i][j];
+          if (temp[x] == 0) {
+            trellis.setLED(x);
+            temp[x] = 1;
 
-void animation3(int m) {
-  if (m == 0) {
-    for (i = 0; i < 10; i++) {
-      for (j = 0; j < 8; j++) {
-        if (show1[i][j] != -1)
-          trellis.setLED(show1[i][j]);
-      }
-      trellis.writeDisplay();
-
-      delay(60);
-      for (j = 0; j < 8; j++) {
-        if (show1[i][j] != -1)
-          trellis.clrLED(show1[i][j]);
+          } else {
+            trellis.clrLED(x);
+            temp[x] = 0;
+          }
+        }
+        trellis.writeDisplay();
+        break;
       }
     }
+
   } else if (m == 1) {
-    for (i = 0; i < 7; i++) {
-      for (j = 0; j < 6; j++) {
-        if (show2[i][j] != -1)
-          trellis.setLED(show2[i][j]);        
-      }
-      trellis.writeDisplay();
-      delay(70);
-      for (j = 0; j < 6; j++) {
-        if (show2[i][j] != -1)
-          trellis.clrLED(show2[i][j]);
+    for (i = 0; i < 16; i++) {
+      if (show[i][0] == n) {
+        for (j = 0; j < 4; j++) {
+          x=show[i][j]+16;          
+          if (temp[x] == 0) {
+            trellis.setLED(x);
+            temp[x] = 1;
+          } else {
+            trellis.clrLED(x);
+            temp[x] = 0;
+          }
+        }
+        trellis.writeDisplay();
+        break;
       }
     }
   } else if (m == 2) {
-    for (i = 0; i < 5; i++) {
-      for (j = 0; j < 4; j++) {
-        if (show3[i][j] != -1)
-          trellis.setLED(show3[i][j]);
-      }
-      trellis.writeDisplay();
-      delay(70);
-      for (j = 0; j < 4; j++) {
-        if (show3[i][j] != -1)
-          trellis.clrLED(show3[i][j]);
-      }
-    }
-  } else if (m == 3) {
-
-    for (i = 3; i >= 0; i--) {
-      for (j = 0; j < 26; j++) {
-        if (circle[i][j] != -1)
-          trellis.setLED(circle[i][j]);
-      }
-      trellis.writeDisplay();
-      delay(70);
-      for (j = 0; j < 26; j++) {
-        if (circle[i][j] != -1)
-          trellis.clrLED(circle[i][j]);
+    for (i = 0; i < 16; i++) {
+      if (show[i][0] == n) {
+        for (j = 0; j < 4; j++) {
+          x=show[i][j]+32;
+          if (temp[x] == 0) {
+            trellis.setLED(x);
+            temp[x] = 1;
+          } else {
+            trellis.clrLED(x);
+            temp[x] = 0;
+          }
+        }
+        trellis.writeDisplay();
+        break;
       }
     }
-    //return
-    for (i = 0; i < 3; i++) {
-      for (j = 0; j < 26; j++) {
-        if (circle[i][j] != -1)
-          trellis.setLED(circle[i][j]);
-      }
-      trellis.writeDisplay();
-      delay(100);
-      for (j = 0; j < 26; j++) {
-        if (circle[i][j] != -1)
-          trellis.clrLED(circle[i][j]);
+  } else if (m == 3) {   
+    for (i = 0; i < 16; i++) {
+      if (show[i][0] == n) {
+        for (j = 0; j < 4; j++) {
+          x=show[i][j]+48;          
+          if (temp[x] == 0) {
+            trellis.setLED(x);
+            temp[x] = 1;
+          } else {
+            trellis.clrLED(x);
+            temp[x] = 0;
+          }
+        }
+        trellis.writeDisplay();
+        break;
       }
     }
   }

@@ -13,12 +13,8 @@ Adafruit_TrellisSet trellis =  Adafruit_TrellisSet(&matrix0, &matrix1, &matrix2,
 #define INTPIN A2
 #define pinLED 13
 
-int state, i = 0, j = 0, k = 0, count = 0;
-int russian[64];
-
+int i = 0, j = 0;
 int rightbutton = 0;
-int show[8][8][8] = {{{0}}};
-
 void setup() {
 
   pinMode(pinLED, OUTPUT);
@@ -27,9 +23,6 @@ void setup() {
   digitalWrite(INTPIN, HIGH);
   trellis.begin(0x70, 0x71, 0x72, 0x73);
   Wire.setClock(400000L);
-
-  for (i = 0; i < 64; i++)
-    russian[i] = 0;
 
   trellis.setLED(0);     //divide 64 led into 4 4*4 matrix
   trellis.writeDisplay();
@@ -72,8 +65,6 @@ int getButton(int pv) { //Returns the ID of the cooresponding button when given 
   }
 }
 
-int h_to_column[8][8] = {{0, 4, 8, 12, 32, 36, 40, 44}, {1, 5, 9, 13, 33, 37, 41, 45}, {2, 6, 10, 14, 34, 38, 42, 46}, {3, 7, 11, 15, 35, 39, 43, 47}, {16, 20, 24, 28, 48, 52, 56, 60}, {17, 21, 25, 29, 49, 53, 57, 61}, {18, 22, 26, 30, 50, 54, 58, 62}, {19, 23, 27, 31, 51, 55, 59, 63}};
-
 int column = 0, m = 0, n = 0;
 void buttonCheck () {           // checks buttons and sends out a MIDI note cooresponding to that button if pressed
 
@@ -83,17 +74,15 @@ void buttonCheck () {           // checks buttons and sends out a MIDI note coor
       if (trellis.justPressed(h)) { //press led h
 
         for (i = 0; i < 8; i++) { //right most button
-          if (h == h_to_column[7][i]) {
+          if (h == Buttons[i][7]) {
             rightbutton = (h - 19) / 4;
           }
         }
-
         //decide button in which column
         for (i = 0; i < 8; i++) {
           for (j = 0; j < 8; j++) {
-            if (h == h_to_column[i][j]) {
-              column = h_to_column[i][0];
-              break;
+            if (h == Buttons[i][j]) {
+              column = Buttons[0][j];              
             }
           }
         }

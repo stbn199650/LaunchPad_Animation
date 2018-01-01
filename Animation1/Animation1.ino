@@ -19,12 +19,8 @@ Adafruit_TrellisSet trellis =  Adafruit_TrellisSet(&matrix0, &matrix1, &matrix2,
 #define INTPIN A2
 #define pinLED 13
 
-int state, i = 0, j = 0, k = 0, count = 0;
-int russian[64];
-
+int i = 0, j = 0;
 int rightbutton = 0;
-int show[8][8][8] = {{{0}}};
-
 void setup() {
 
   pinMode(pinLED, OUTPUT);
@@ -34,12 +30,9 @@ void setup() {
   trellis.begin(0x70, 0x71, 0x72, 0x73);
   Wire.setClock(400000L);
 
-  for (i = 0; i < 64; i++)
-    russian[i] = 0;
-
   trellis.setLED(0);     //divide 64 led into 4 4*4 matrix
   trellis.writeDisplay();
-  delay(1000);
+  delay(200);
   trellis.clrLED(0);
   trellis.writeDisplay();
 }
@@ -85,7 +78,6 @@ int getButton(int pv) { //Returns the ID of the cooresponding button when given 
     return Buttons[(3 - floored) + 4][pv % 4];
   }
 }
-int h_to_column[8][8] = {{0, 4, 8, 12, 32, 36, 40, 44}, {1, 5, 9, 13, 33, 37, 41, 45}, {2, 6, 10, 14, 34, 38, 42, 46}, {3, 7, 11, 15, 35, 39, 43, 47}, {16, 20, 24, 28, 48, 52, 56, 60}, {17, 21, 25, 29, 49, 53, 57, 61}, {18, 22, 26, 30, 50, 54, 58, 62}, {19, 23, 27, 31, 51, 55, 59, 63}};
 
 int arrow[16][4][4] = {{{0, -1, -1, -1}, {1, 4, 5, -1}, {6, 9, 10, -1}, {11, 14, 15, -1}},
   {{1, -1, -1, -1}, {0, 2, 5, -1}, {4, 6, 9, -1}, {8, 10, 13, -1}},
@@ -121,16 +113,15 @@ void buttonCheck () {           // checks buttons and sends out a MIDI note coor
         //press right most button
 
         for (i = 0; i < 8; i++) { //right most button
-          if (h == h_to_column[7][i]) {
+          if (h == Buttons[i][7]) {
             rightbutton = (h - 19) / 4;
           }
         }
         //decide button in which column
         for (i = 0; i < 8; i++) {
           for (j = 0; j < 8; j++) {
-            if (h == h_to_column[i][j]) {
-              column = h_to_column[i][0];
-              break;
+            if (h == Buttons[i][j]) {
+              column = Buttons[0][j];              
             }
           }
         }
@@ -150,6 +141,8 @@ void buttonCheck () {           // checks buttons and sends out a MIDI note coor
         } else if (rightbutton == 2 && column != 19) {
           m = h / 16;   //button is in which matrix
           n = h % 16;
+          Serial.print("h ");
+          Serial.println(h);
           animation2(m, n, h);
         }
 
@@ -202,9 +195,13 @@ void animation2(int m, int n, int h) {
     }
   } else if (m == 1) {
     for (i = col+2; i >= 0; i--) {
-      for (j = 0; j < 3; j++)
+      for (j = 0; j < 3; j++){
         if (horizental_flash[i][j] != -1)
-          trellis.setLED(horizental_flash[i][j] + row);
+          trellis.setLED(horizental_flash[i][j] + row);          
+        
+        if(i<=1)
+        Serial.println(horizental_flash[i][j] + row);
+      }
       trellis.writeDisplay();
       delay(150);
       for (j = 0; j < 3; j++)
